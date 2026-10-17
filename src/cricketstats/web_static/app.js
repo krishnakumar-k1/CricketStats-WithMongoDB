@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const demos = {
-  Test: ["What is Sachin Tendulkar's Test batting average?", "How many Test hundreds did Sachin Tendulkar score?", "Who was the first Indian to score centuries in both innings of a Test?"],
-  IPL: ["Who won the IPL Orange Cap in 2023?", "Who won the IPL Purple Cap in 2023?", "Who has scored the most IPL runs?", "Who has hit the most sixes in IPL?"]
+  Test: ["What are Sachin Tendulkar's Test career statistics?", "How many Test hundreds did Sachin Tendulkar score?", "Who was the first Indian to score centuries in both innings of a Test?"],
+  IPL: ["Who has hit the most sixes in IPL, and how many?", "Which team has reached the most IPL finals?", "Who has taken the most wickets in IPL?", "Who has scored the most centuries in IPL?"]
 };
 let demoIndex = {Test:0, IPL:0};
 function clearAnswer(){$("resultState").classList.add("hidden");$("loading").classList.add("hidden");$("emptyState").classList.remove("hidden")}

@@ -60,7 +60,7 @@ IPL:
 
 ```bash
 ask-cricket-mongodb --ipl
-ask-cricket-mongodb --ipl --question "Who won the IPL Orange Cap in 2023?"
+ask-cricket-mongodb --ipl --question "Who has hit the most sixes in IPL, and how many?"
 ```
 
 Equivalent checkout scripts are `ask_cricket_mongo.py` and
@@ -79,7 +79,7 @@ Then open `http://127.0.0.1:8765`. The interface includes a Test/IPL selector,
 question suggestions, answer presentation, and optional aggregation details.
 It uses the local MongoDB service and remains bound to localhost by default.
 
-Common stored career totals and IPL Orange/Purple Cap questions use
+Common stored career totals, IPL leaderboards, and finals questions use
 deterministic MongoDB pipelines rather than relying on model collection
 selection. All other generated pipelines are read-only, limited, and run with
 a 60-second database timeout.

@@ -11,13 +11,19 @@ from .mongodb_assistant import answer, schema_summary
 from .mongodb_client import MongoSettings, create_client
 
 STATIC = Path(__file__).with_name("web_static")
+DISPLAY_NAMES = {
+    "CH Gayle": "Chris Gayle",
+    "SR Tendulkar": "Sachin Tendulkar",
+    "V Kohli": "Virat Kohli",
+    "YS Chahal": "Yuzvendra Chahal",
+}
 
 
 def human_answer(question: str, rows: list[dict]) -> str:
     if not rows:
         return "No matching record was found in the selected MongoDB dataset."
     row = rows[0]
-    player = row.get("player_name")
+    player = DISPLAY_NAMES.get(row.get("player_name"), row.get("player_name"))
     lower = question.lower()
     if "first indian" in lower and "centur" in lower and "both" in lower and "innings" in lower:
         scores = row.get("scores", [])
@@ -27,9 +33,19 @@ def human_answer(question: str, rows: list[dict]) -> str:
         return f"{player} won the {row.get('year')} IPL Orange Cap with {row.get('runs_scored'):,} runs."
     if "purple cap" in lower:
         return f"{player} won the {row.get('year')} IPL Purple Cap with {row.get('wickets_taken')} wickets."
+    if "final" in lower and "finals" in row:
+        return f"{row.get('team')} has reached the most IPL finals in the database: {row.get('finals')}."
+    if row.get("player_name") == "SR Tendulkar" and "stat" in lower:
+        return (
+            f"Sachin Tendulkar's Test record in the database: {row.get('matches')} matches, "
+            f"{row.get('runs_scored'):,} runs at {row.get('batting_average')}, "
+            f"a highest score of {row.get('highest_score')}, {row.get('hundreds')} hundreds, "
+            f"and {row.get('fifties')} fifties."
+        )
+    competition = "IPL" if "ipl" in lower else "Test"
     fields = (
-        ("batting_average", "Test batting average"), ("bowling_average", "Test bowling average"),
-        ("hundreds", "Test hundreds"), ("wickets_taken", "Test wickets"),
+        ("batting_average", f"{competition} batting average"), ("bowling_average", f"{competition} bowling average"),
+        ("hundreds", f"{competition} centuries"), ("wickets_taken", f"{competition} wickets"),
         ("catches", "Test catches"), ("runs_scored", "runs"), ("sixes", "sixes"),
     )
     for field, label in fields:

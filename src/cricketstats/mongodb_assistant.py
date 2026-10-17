@@ -102,6 +102,19 @@ def deterministic_plan(question: str, players: list[str]) -> dict[str, Any] | No
     named career and grouped-career collections.
     """
     lower = question.lower()
+    if "final" in lower and any(term in lower for term in ("most", "more")):
+        return {
+            "collection": "match_stats",
+            "pipeline": [
+                {"$match": {"event_stage": "Final"}},
+                {"$project": {"_id": 0, "finalists": ["$team1", "$team2"]}},
+                {"$unwind": "$finalists"},
+                {"$group": {"_id": "$finalists", "finals": {"$sum": 1}}},
+                {"$sort": {"finals": -1, "_id": 1}},
+                {"$project": {"_id": 0, "team": "$_id", "finals": 1}},
+                {"$limit": 1},
+            ],
+        }
     cap = "orange" if "orange cap" in lower else "purple" if "purple cap" in lower else None
     if cap:
         year_match = re.search(r"\b(20\d{2}|19\d{2})\b", lower)
@@ -116,14 +129,48 @@ def deterministic_plan(question: str, players: list[str]) -> dict[str, Any] | No
                 {"$limit": 1 if year_match else 20},
             ],
         }
-    if "ipl" in lower and "most" in lower and any(term in lower for term in ("runs", "sixes")):
-        field = "sixes" if "sixes" in lower else "runs_scored"
+    if "ipl" in lower and any(term in lower for term in ("most", "more")) and any(
+        term in lower for term in ("runs", "sixes", "wickets", "centuries", "hundreds")
+    ):
+        if "sixes" in lower:
+            field = "sixes"
+        elif "wicket" in lower:
+            field = "wickets_taken"
+        elif "centur" in lower or "hundred" in lower:
+            field = "hundreds"
+        else:
+            field = "runs_scored"
         return {
             "collection": "player_career_stats",
             "pipeline": [
                 {"$match": {"format_group": "IPL", "competition_name": "Indian Premier League"}},
                 {"$sort": {field: -1, "matches": -1}},
                 {"$project": {"_id": 0, "player_name": 1, field: 1, "matches": 1}},
+                {"$limit": 1},
+            ],
+        }
+    if players and players[0] == "SR Tendulkar" and any(
+        term in lower for term in ("stat", "record", "career")
+    ):
+        return {
+            "collection": "player_career_stats",
+            "pipeline": [
+                {"$match": {
+                    "player_name": "SR Tendulkar",
+                    "format_group": "Test",
+                    "competition_name": "All",
+                }},
+                {"$sort": {"matches": -1, "runs_scored": -1}},
+                {"$project": {
+                    "_id": 0,
+                    "player_name": 1,
+                    "matches": 1,
+                    "runs_scored": 1,
+                    "batting_average": 1,
+                    "highest_score": 1,
+                    "hundreds": 1,
+                    "fifties": 1,
+                }},
                 {"$limit": 1},
             ],
         }

@@ -63,6 +63,36 @@ def test_ipl_leader_question_uses_career_collection():
     assert plan["pipeline"][1] == {"$sort": {"runs_scored": -1, "matches": -1}}
 
 
+@pytest.mark.parametrize(
+    ("question", "field"),
+    [
+        ("Who has hit the most sixes in IPL, and how many?", "sixes"),
+        ("Who has taken the most wickets in IPL?", "wickets_taken"),
+        ("Who has scored the most centuries in IPL?", "hundreds"),
+    ],
+)
+def test_ipl_leader_questions_use_authoritative_career_fields(question, field):
+    plan = deterministic_plan(question, [])
+    assert plan["collection"] == "player_career_stats"
+    assert plan["pipeline"][1] == {"$sort": {field: -1, "matches": -1}}
+
+
+def test_most_ipl_finals_counts_both_teams():
+    plan = deterministic_plan("Which team has reached the most IPL finals?", [])
+    assert plan["collection"] == "match_stats"
+    assert plan["pipeline"][0] == {"$match": {"event_stage": "Final"}}
+    assert plan["pipeline"][2] == {"$unwind": "$finalists"}
+
+
+def test_tendulkar_career_summary_is_deterministic():
+    plan = deterministic_plan(
+        "What are Sachin Tendulkar's Test career statistics?", ["SR Tendulkar"]
+    )
+    assert plan["collection"] == "player_career_stats"
+    assert plan["pipeline"][0]["$match"]["player_name"] == "SR Tendulkar"
+    assert plan["pipeline"][2]["$project"]["highest_score"] == 1
+
+
 def test_first_indian_twin_centuries_uses_innings_data():
     plan = deterministic_plan(
         "Who was the first Indian to score centuries in both innings of a Test?", []
