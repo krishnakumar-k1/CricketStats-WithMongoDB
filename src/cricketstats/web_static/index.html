@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3f4eb">
+  <title>Crease — Cricket intelligence</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <nav>
+      <a class="brand" href="#"><span class="brand-mark">C</span><span>CREASE</span></a>
+      <div class="status"><span class="status-dot"></span> MongoDB connected</div>
+    </nav>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow">CRICKET INTELLIGENCE / 01</p>
+        <h1>Ask the game.<br><em>Get the evidence.</em></h1>
+        <p class="lede">Explore Test history and every IPL season through one grounded, read-only view of your MongoDB records.</p>
+      </div>
+      <aside class="connection-card">
+        <span>LOCAL DATA SOURCE</span>
+        <strong>MongoDB Community</strong>
+        <p>Private on this Mac. No hosted database and no writes from the assistant.</p>
+        <div>Connection healthy ↗</div>
+      </aside>
+    </section>
+
+    <div class="steps" aria-label="Workflow">
+      <div class="step active"><b>01</b><span>Choose the format</span></div>
+      <div class="line"></div>
+      <div class="step"><b>02</b><span>Ask your question</span></div>
+      <div class="line"></div>
+      <div class="step"><b>03</b><span>Review the answer</span></div>
+    </div>
+
+    <section class="workspace">
+      <header class="section-head">
+        <div><p class="eyebrow">01 / THE QUESTION</p><h2>Cricket Stats powered by Qwen AI and MongoDB</h2><p>Choose Test or IPL. Every answer is calculated from the selected MongoDB dataset.</p></div>
+        <button class="demo-button" id="loadDemo">▤ &nbsp; Load a demo question</button>
+      </header>
+
+      <div class="cards">
+        <article class="card question-card">
+          <div class="card-title"><span class="icon green">?</span><div><strong>Your cricket question</strong><small>Natural language, grounded in records</small></div><span class="letter">Q</span></div>
+          <label for="format">Competition</label>
+          <div class="select-wrap"><select id="format"><option>Test</option><option>IPL</option></select></div>
+          <label for="question">Question</label>
+          <textarea id="question" rows="4" placeholder="e.g. Who won the IPL Orange Cap in 2023?"></textarea>
+          <div class="suggestions" id="suggestions"></div>
+        </article>
+
+        <article class="card answer-card" aria-live="polite">
+          <div class="card-title"><span class="icon blue">✓</span><div><strong>Evidence-backed answer</strong><small>Read-only result from MongoDB</small></div><span class="letter">A</span></div>
+          <div class="answer-empty" id="emptyState"><span class="ball">●</span><strong>Your answer will appear here</strong><p>Ask a question to see the result and its source collection.</p></div>
+          <div class="answer-result hidden" id="resultState"><p class="answer-label">ANSWER</p><h3 id="answerText"></h3><div class="evidence"><span id="sourceText"></span><button id="detailsButton">View query details</button></div><pre id="queryDetails" class="hidden"></pre></div>
+          <div class="loading hidden" id="loading"><span></span><span></span><span></span><p>Reading the scorebook…</p></div>
+        </article>
+      </div>
+
+      <footer class="action-row">
+        <div><strong>Read-only by design.</strong><p>Questions never change the source data. Generated queries are validated before execution.</p></div>
+        <button id="askButton">Ask CricketStats <span>→</span></button>
+      </footer>
+    </section>
+    <footer class="page-footer"><span>◇ &nbsp; LOCAL MONGODB · SAFE, READ-ONLY AGGREGATIONS</span><span>CREASE / 0.1</span></footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

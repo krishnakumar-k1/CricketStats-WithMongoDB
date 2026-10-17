@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+.DS_Store
+*.sqlite
+*.sqlite.*
+.env
+cookies.txt
+logs/
+match_1000851_full_stats.txt

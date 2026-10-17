@@ -1,0 +1,801 @@
+[
+  {
+    "name": "sobers_bowling_record_uses_bowling_row",
+    "question": "get the bowling record of sobers",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'Sobers'",
+      "ORDER BY wickets_taken DESC"
+    ],
+    "sql_not_contains": [
+      "player_name = 'GS Sobers'",
+      "ORDER BY runs_scored DESC",
+      "batting_innings DESC"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "Sobers",
+      "matches": 93,
+      "wickets_taken": 235,
+      "best_bowling": "6/73",
+      "bowling_average": 34.04,
+      "five_wickets": 6
+    }
+  },
+  {
+    "name": "murali_vijay_hundreds_uses_database_name",
+    "question": "how many test hundreds did murali vijay score",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'M Vijay'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "hundreds",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "Murali V Vijay",
+      "player_career_group_stats"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "hundreds",
+      "value": 11
+    }
+  },
+  {
+    "name": "ashwin_five_wicket_innings_uses_bowling_innings_table",
+    "question": "how many 5 wickets per innings ashwin has taken",
+    "sql_contains": [
+      "FROM player_match_innings_stats",
+      "JOIN match_stats",
+      "wickets_taken >= 5",
+      "m.match_type = 'Test'"
+    ],
+    "sql_not_contains": [
+      "player_batting_innings_stats",
+      "Ashwin Das"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "five_wicket_innings": 37
+    }
+  },
+  {
+    "name": "vijay_hazare_hundreds_uses_initial_name",
+    "question": "how many test hundreds did vijay hazare score",
+    "sql_contains": [
+      "player_name = 'VS Hazare'",
+      "format_group = 'Test'"
+    ],
+    "sql_not_contains": [
+      "M Vijay",
+      "Vijay Hazare"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "test_hundreds",
+      "value": 7,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "bradman_played_tests_in_india_uses_match_location",
+    "question": "did bradman play any test in india",
+    "sql_contains": [
+      "FROM player_match_stats",
+      "JOIN match_stats",
+      "player_name = 'DG Bradman'",
+      "m.match_type = 'Test'",
+      "m.city"
+    ],
+    "sql_not_contains": [
+      "p.player_team",
+      "player_team",
+      "p.team = 'India'"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "tests_in_india",
+      "value": 0
+    }
+  },
+  {
+    "name": "gavaskar_any_test_wicket_uses_career_wickets",
+    "question": "has gavaskar taken any test wicket",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'Gavaskar'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "wickets_taken",
+      "test_wickets_taken"
+    ],
+    "sql_not_contains": [
+      "COUNT(*)",
+      "player_match_innings_stats",
+      "player_name = 'SM Gavaskar'"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "test_wickets_taken": 1
+    }
+  },
+  {
+    "name": "gavaskar_catches_uses_fielding_career_row",
+    "question": "how many catches gavaskar has taken",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'Gavaskar'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "catches"
+    ],
+    "sql_not_contains": [
+      "SUM(catches)",
+      "player_match_stats",
+      "player_name = 'SM Gavaskar'"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "total_catches": 108
+    }
+  },
+  {
+    "name": "gavaskar_most_dismissed_by_excludes_blank_bowler",
+    "question": "which bowler has taken the wicket of gavaskar the most",
+    "sql_contains": [
+      "FROM player_match_innings_stats",
+      "JOIN match_stats",
+      "player_name = 'SM Gavaskar'",
+      "m.match_type = 'Test'",
+      "dismissal_bowler",
+      "trim",
+      "GROUP BY",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "player_name = 'Gavaskar'",
+      "wickets_taken > 0"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "dismissal_bowler": "Underwood",
+      "wickets_taken": 12
+    }
+  },
+  {
+    "name": "gavaskar_hundreds_against_australia_uses_opposition",
+    "question": "how many test hundreds has gavaskar scored against australia",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "player_name = 'SM Gavaskar'",
+      "format_group = 'Test'",
+      "opposition = 'Australia'",
+      "runs_scored >= 100"
+    ],
+    "sql_not_contains": [
+      "player_team !=",
+      "player_team <>",
+      "player_career_stats"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "hundreds_against_australia",
+      "value": 8,
+      "allow_any_column": true
+    }
+  },
+  {
+    "name": "highest_test_team_innings_total_joins_match_stats",
+    "question": "what is the highest ever total runs in a single innings recorded by any team in test cricket",
+    "sql_contains": [
+      "FROM match_innings_stats",
+      "JOIN match_stats",
+      "m.match_type = 'Test'",
+      "runs",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "match_innings_stats.match_type",
+      "mi.match_type",
+      "WHERE match_type = 'Test'"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "team": "Sri Lanka",
+      "total_runs": 952
+    }
+  },
+  {
+    "name": "all_ten_wickets_in_test_innings_uses_bowling_innings_rows",
+    "question": "who has taken all 10 wickets in a test match innings",
+    "sql_contains": [
+      "FROM player_match_innings_stats",
+      "JOIN match_stats",
+      "m.match_type = 'Test'",
+      "wickets_taken >= 10"
+    ],
+    "sql_not_contains": [
+      "dismissal_bowler",
+      "GROUP BY p.dismissal_bowler",
+      "GROUP BY dismissal_bowler"
+    ],
+    "row_count_min": 3,
+    "expected_rows": [
+      {
+        "player_name": "Laker",
+        "wickets_taken": 10
+      },
+      {
+        "player_name": "A Kumble",
+        "wickets_taken": 10
+      },
+      {
+        "player_name": "AY Patel",
+        "wickets_taken": 10
+      }
+    ]
+  },
+  {
+    "name": "muralitharan_wickets_uses_single_career_row",
+    "question": "how many wickets has muttiah muralidharan has taken",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'M Muralitharan'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "wickets_taken"
+    ],
+    "sql_not_contains": [
+      "IN (",
+      "player_match_stats",
+      "SUM(wickets_taken)",
+      "Jayasuriya -> Muralitharan",
+      "Pushpakumara -> Muralitharan"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "M Muralitharan",
+      "total_wickets": 545
+    }
+  },
+  {
+    "name": "kapil_dev_wickets_uses_career_wickets_column",
+    "question": "how many wickets did kapil dev take",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'Kapil Dev'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "wickets_taken"
+    ],
+    "sql_not_contains": [
+      "COUNT(*)",
+      "SUM(wickets_taken)",
+      "player_match_stats"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "total_wickets",
+      "value": 434,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "richard_hadlee_wickets_uses_surname_bowling_row",
+    "question": "how many wickets has richard hadlee taken",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'Hadlee'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "wickets_taken",
+      "ORDER BY wickets_taken DESC"
+    ],
+    "sql_not_contains": [
+      "player_name = 'RJ Hadlee'",
+      "SUM(wickets_taken)",
+      "player_match_stats"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "Hadlee",
+      "total_wickets": 430
+    }
+  },
+  {
+    "name": "visiting_batsman_most_test_centuries_in_australia",
+    "question": "which visiting batsman has scored the most test centuries in Australia",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "runs_scored >= 100",
+      "player_team <> 'Australia'",
+      "GROUP BY",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "DG Bradman",
+      "player_team != 'Australia'"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "JB Hobbs",
+      "centuries_scored": 9
+    }
+  },
+  {
+    "name": "gavaskar_centuries_in_each_innings_returns_scores",
+    "question": "what are the runs scored by Gavaskar when he scored centuries in each innings of test matches",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "player_name = 'SM Gavaskar'",
+      "format_group = 'Test'",
+      "runs_scored >= 100",
+      "HAVING COUNT(*) >= 2"
+    ],
+    "sql_not_contains": [
+      "GROUP BY match_id, innings_number",
+      "SUM(runs_scored)"
+    ],
+    "row_count_min": 6,
+    "expected_rows": [
+      {
+        "match_id": "ca_31506",
+        "innings_number": 1,
+        "runs_scored": 124
+      },
+      {
+        "match_id": "ca_31506",
+        "innings_number": 3,
+        "runs_scored": 220
+      },
+      {
+        "match_id": "ca_38634",
+        "innings_number": 1,
+        "runs_scored": 111
+      },
+      {
+        "match_id": "ca_38634",
+        "innings_number": 3,
+        "runs_scored": 137
+      },
+      {
+        "match_id": "ca_38771",
+        "innings_number": 1,
+        "runs_scored": 107
+      },
+      {
+        "match_id": "ca_38771",
+        "innings_number": 3,
+        "runs_scored": 182
+      }
+    ]
+  },
+  {
+    "name": "gavaskar_count_centuries_in_each_innings_counts_matches",
+    "question": "how many times sunil gavaskar has scored centuries in each innings of a test match",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "player_name = 'SM Gavaskar'",
+      "format_group = 'Test'",
+      "runs_scored >= 100",
+      "GROUP BY player_name, match_id",
+      "HAVING COUNT(*) >= 2"
+    ],
+    "sql_not_contains": [
+      "GROUP BY match_id, innings_number"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "times_centuries_in_each_innings",
+      "value": 3,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "gavaskar_overseas_test_hundreds_excludes_india",
+    "question": "how many overseas test hundreds gavaskar has scored",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "player_name = 'SM Gavaskar'",
+      "format_group = 'Test'",
+      "runs_scored >= 100",
+      "NOT"
+    ],
+    "sql_not_contains": [
+      "opposition =",
+      "player_team !=",
+      "player_team <>"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "overseas_test_hundreds",
+      "value": 18,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "bradman_abroad_test_hundreds_excludes_australia",
+    "question": "how many test hundreds did bradman score abroad",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "player_name = 'DG Bradman'",
+      "format_group = 'Test'",
+      "runs_scored >= 100",
+      "NOT",
+      "Sydney",
+      "Australia"
+    ],
+    "sql_not_contains": [
+      "Bombay",
+      "Mumbai",
+      "player_team !=",
+      "player_team <>",
+      "opposition ="
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "test_hundreds_abroad",
+      "value": 11,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "most_consecutive_test_hundreds_uses_all_innings_streak",
+    "question": "which batsman has scored more consecutive test hundreds",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "format_group = 'Test'",
+      "CASE WHEN runs_scored >= 100 THEN 1 ELSE 0 END",
+      "ROW_NUMBER() OVER",
+      "PARTITION BY player_name",
+      "PARTITION BY player_name, is_hundred",
+      "WHERE is_hundred = 1",
+      "ORDER BY consecutive_hundreds DESC"
+    ],
+    "sql_not_contains": [
+      "WHERE format_group = 'Test'\n    AND runs_scored >= 100",
+      "SR Tendulkar"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "ED Weekes",
+      "consecutive_hundreds": 5
+    }
+  },
+  {
+    "name": "tendulkar_test_batting_average_uses_career_average",
+    "question": "what is sachin tendulkar's test batting average",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'SR Tendulkar'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "batting_average"
+    ],
+    "sql_not_contains": [
+      "AVG(",
+      "player_batting_innings_stats"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "batting_average",
+      "value": 54.6,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "lara_highest_test_score_uses_career_highest_score",
+    "question": "what was brian lara's highest test score",
+    "sql_contains": [
+      "player_name = 'BC Lara'",
+      "'Test'",
+      "score"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "highest_score",
+      "value": 400,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "muralitharan_test_bowling_average_uses_career_bowling_row",
+    "question": "what is muttiah muralitharan's test bowling average",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'M Muralitharan'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "bowling_average",
+      "wickets_taken > 0"
+    ],
+    "sql_not_contains": [
+      "AVG(",
+      "player_match_stats"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "bowling_average",
+      "value": 24.14,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "dhoni_test_stumpings_uses_career_fielding_total",
+    "question": "how many stumpings did ms dhoni make in test cricket",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'MS Dhoni'",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "stumpings"
+    ],
+    "sql_not_contains": [
+      "COUNT(*)",
+      "SUM(stumpings)",
+      "player_match_stats"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "stumpings",
+      "value": 36,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "team_with_most_test_wins_uses_match_winner",
+    "question": "which team has won the most test matches",
+    "sql_contains": [
+      "FROM match_stats",
+      "match_type = 'Test'",
+      "winner",
+      "COUNT(*)",
+      "GROUP BY",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "player_match_stats",
+      "match_innings_stats"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "wins",
+      "value": 398,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "india_highest_test_innings_uses_team_innings",
+    "question": "what is india's highest total in a test innings",
+    "sql_contains": [
+      "FROM match_innings_stats",
+      "JOIN match_stats",
+      "m.match_type = 'Test'",
+      "team = 'India'",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "player_batting_innings_stats",
+      "SUM(runs)"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "team": "India",
+      "total_runs": 759
+    }
+  },
+  {
+    "name": "venue_with_most_tests_groups_match_metadata",
+    "question": "which venue has hosted the most test matches",
+    "sql_contains": [
+      "FROM match_stats",
+      "match_type = 'Test'",
+      "venue",
+      "COUNT(*)",
+      "GROUP BY venue",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "match_innings_stats",
+      "player_match_stats"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "venue": "Galle International Stadium"
+    },
+    "scalar": {
+      "column": "tests_hosted",
+      "value": 39,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "largest_test_victory_by_runs_uses_match_margin",
+    "question": "what is the largest victory by runs in test cricket",
+    "sql_contains": [
+      "FROM match_stats",
+      "match_type = 'Test'",
+      "won_by_runs",
+      "ORDER BY won_by_runs DESC"
+    ],
+    "sql_not_contains": [
+      "match_innings_stats",
+      "SUM("
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "won_by_runs",
+      "value": 675,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "first_indian_test_double_century_uses_earliest_qualifying_innings",
+    "question": "who was the first indian player to score a double century in test cricket",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "format_group = 'Test'",
+      "player_team = 'India'",
+      "runs_scored >= 200",
+      "ORDER BY match_date ASC"
+    ],
+    "sql_not_contains": [
+      "MIN(match_date)",
+      "player_name = 'India'"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "PR Umrigar",
+      "runs_scored": 223
+    }
+  },
+  {
+    "name": "gavaskar_boycott_test_runs_comparison_returns_both_players",
+    "question": "who scored more test runs, sunil gavaskar or geoff boycott",
+    "sql_contains": [
+      "SM Gavaskar",
+      "G Boycott",
+      "runs_scored",
+      "ORDER BY"
+    ],
+    "row_count_min": 2,
+    "scalar": {
+      "column": "runs_scored",
+      "value": 10122,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "ashwin_fivefers_means_five_wicket_innings",
+    "question": "how many fivefers R ashwin has taken",
+    "sql_contains": [
+      "FROM player_match_innings_stats",
+      "JOIN match_stats",
+      "player_name = 'R Ashwin'",
+      "m.match_type = 'Test'",
+      "wickets_taken >= 5",
+      "COUNT(*)"
+    ],
+    "sql_not_contains": [
+      "FROM player_match_stats",
+      "player_career_stats",
+      "SUM(wickets_taken)"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "fivefers_taken",
+      "value": 37,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "botham_fivers_uses_merged_player_name_and_innings",
+    "question": "how many fivers did botham take",
+    "sql_contains": [
+      "FROM player_match_innings_stats",
+      "JOIN match_stats",
+      "player_name = 'IT Botham'",
+      "m.match_type = 'Test'",
+      "wickets_taken >= 5",
+      "COUNT(*)"
+    ],
+    "sql_not_contains": [
+      "player_name = 'Botham'",
+      "FROM player_match_stats",
+      "player_career_stats",
+      "SUM(wickets_taken)"
+    ],
+    "row_count_min": 1,
+    "scalar": {
+      "column": "fivers_taken",
+      "value": 27,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "indian_player_most_test_catches_uses_career_and_team_membership",
+    "question": "which indian player has taken the most catches",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_match_stats",
+      "format_group = 'Test'",
+      "competition_name = 'All'",
+      "team = 'India'",
+      "catches",
+      "ORDER BY",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": [
+      "player_team",
+      "SUM(catches)"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "MS Dhoni",
+      "catches": 248
+    }
+  },
+  {
+    "name": "indian_player_most_test_double_centuries_counts_200_innings",
+    "question": "which indian player has scored more double century",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "format_group = 'Test'",
+      "player_team = 'India'",
+      "runs_scored >= 200",
+      "COUNT(*)",
+      "GROUP BY player_name",
+      "ORDER BY",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": [
+      "player_career_stats",
+      "hundreds",
+      "player_name = 'SR Rocket'"
+    ],
+    "row_count_min": 1,
+    "first_row": {
+      "player_name": "V Kohli",
+      "test_double_centuries": 7
+    }
+  },
+  {
+    "name": "most_test_triple_centuries_searches_all_players_and_returns_ties",
+    "question": "which player has scored more triple hundreds in test cricket",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "format_group = 'Test'",
+      "runs_scored >= 300",
+      "COUNT(*)",
+      "GROUP BY player_name",
+      "MAX("
+    ],
+    "sql_not_contains": [
+      "player_name IN",
+      "player_name =",
+      "SR Rocket",
+      "LIMIT 1",
+      "player_career_stats"
+    ],
+    "row_count_min": 3,
+    "expected_rows": [
+      {
+        "player_name": "BC Lara",
+        "triple_hundreds": 2
+      },
+      {
+        "player_name": "CH Gayle",
+        "triple_hundreds": 2
+      },
+      {
+        "player_name": "DG Bradman",
+        "triple_hundreds": 2
+      }
+    ]
+  }
+]

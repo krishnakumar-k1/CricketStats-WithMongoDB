@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How a local Qwen model, prompt engineering, SQLite, and regression testing power a cricket statistics assistant.">
+  <title>Teaching Qwen to Answer Cricket Statistics Questions with SQL</title>
+  <style>
+    :root {
+      --ink: #18231d;
+      --muted: #59655e;
+      --paper: #fbfaf6;
+      --card: #ffffff;
+      --green: #126149;
+      --green-dark: #0c4635;
+      --gold: #d8a83e;
+      --line: #dfe4dc;
+      --code: #14251e;
+      --code-ink: #d9f2e5;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 5%, rgba(216, 168, 62, .13), transparent 28rem),
+        var(--paper);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 19px;
+      line-height: 1.72;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      color: white;
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      border-bottom: 6px solid var(--gold);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -8rem -14rem auto;
+      width: 34rem;
+      height: 34rem;
+      border: 2px solid rgba(255,255,255,.12);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4rem rgba(255,255,255,.035), 0 0 0 8rem rgba(255,255,255,.025);
+    }
+
+    .hero-inner, main {
+      width: min(920px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      padding: 88px 0 72px;
+    }
+
+    .eyebrow {
+      margin: 0 0 20px;
+      color: #f1d991;
+      font: 700 13px/1.4 Arial, sans-serif;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-size: clamp(42px, 7vw, 72px);
+      line-height: 1.03;
+      letter-spacing: -.035em;
+    }
+
+    .deck {
+      max-width: 760px;
+      margin: 28px 0 0;
+      color: rgba(255,255,255,.86);
+      font-size: 23px;
+      line-height: 1.5;
+    }
+
+    .byline {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 34px;
+      color: rgba(255,255,255,.7);
+      font: 14px/1.4 Arial, sans-serif;
+    }
+
+    .ball {
+      display: inline-grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      background: var(--gold);
+      border-radius: 50%;
+      color: var(--green-dark);
+      font-weight: 800;
+    }
+
+    main { padding: 70px 0 110px; }
+
+    .lead {
+      color: #26362d;
+      font-size: 24px;
+      line-height: 1.62;
+    }
+
+    h2 {
+      margin: 70px 0 20px;
+      color: var(--green-dark);
+      font-size: 36px;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+    }
+
+    h3 {
+      margin: 42px 0 12px;
+      color: var(--green);
+      font-size: 25px;
+      line-height: 1.25;
+    }
+
+    p { margin: 0 0 24px; }
+
+    ul, ol { padding-left: 1.35em; }
+    li { margin: 8px 0; }
+
+    blockquote {
+      margin: 34px 0;
+      padding: 8px 0 8px 28px;
+      color: var(--green-dark);
+      border-left: 5px solid var(--gold);
+      font-size: 27px;
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    .pipeline {
+      display: grid;
+      gap: 0;
+      max-width: 650px;
+      margin: 36px auto;
+      padding: 28px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(22, 57, 42, .08);
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .pipeline span {
+      padding: 11px 16px;
+      border-radius: 10px;
+      background: #edf5f0;
+      color: var(--green-dark);
+      font-weight: 700;
+    }
+
+    .pipeline i {
+      height: 28px;
+      color: var(--gold);
+      font-style: normal;
+      line-height: 28px;
+    }
+
+    .callout {
+      margin: 38px 0;
+      padding: 26px 28px;
+      background: #eef5ef;
+      border: 1px solid #d4e4d8;
+      border-radius: 14px;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--green-dark);
+      font: 700 14px/1.4 Arial, sans-serif;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    code {
+      padding: .12em .35em;
+      color: var(--green-dark);
+      background: #e9efea;
+      border-radius: 4px;
+      font-size: .86em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 30px 0;
+      padding: 24px;
+      color: var(--code-ink);
+      background: var(--code);
+      border-radius: 14px;
+      box-shadow: inset 0 1px rgba(255,255,255,.06);
+      font: 15px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    pre code {
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      font-size: inherit;
+    }
+
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin: 30px 0;
+    }
+
+    .lesson {
+      padding: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .lesson b {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--green-dark);
+      font: 700 17px/1.3 Arial, sans-serif;
+    }
+
+    .lesson p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .closing {
+      margin-top: 70px;
+      padding: 38px;
+      color: white;
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      border-radius: 18px;
+    }
+
+    .closing h2 {
+      margin-top: 0;
+      color: white;
+    }
+
+    .closing p:last-child { margin-bottom: 0; }
+
+    footer {
+      padding: 26px 20px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font: 13px/1.5 Arial, sans-serif;
+      text-align: center;
+    }
+
+    @media (max-width: 680px) {
+      body { font-size: 18px; }
+      .hero-inner { padding: 62px 0 54px; }
+      main { padding-top: 50px; }
+      .lesson-grid { grid-template-columns: 1fr; }
+      .closing { padding: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Local AI · Prompt Engineering · Text-to-SQL</p>
+      <h1>Teaching Qwen to Answer Cricket Statistics Questions with SQL</h1>
+      <p class="deck">How a local language model, a domain-specific prompt guide, deterministic name resolution, SQLite, and regression testing became a practical cricket research assistant.</p>
+      <div class="byline"><span class="ball">6</span><span>A project field note · 12 minute read</span></div>
+    </div>
+  </header>
+
+  <main>
+    <p class="lead">Cricket statistics questions sound simple until you try to translate them into database queries. “Who dismissed Gavaskar most often?” and “Which visiting batter scored the most Test centuries in Australia?” require much more than knowing SQL syntax.</p>
+
+    <p>The system must understand cricket terminology, resolve historical player names, choose the right level of aggregation, distinguish opposition from location, and avoid silently plausible but incorrect queries. I built a local assistant using Qwen, Ollama, Python, and SQLite to explore how prompt engineering can bridge that gap.</p>
+
+    <blockquote>Qwen’s job is not to memorize every cricket record. Its job is to translate a cricket question into accurate SQL over a trusted database.</blockquote>
+
+    <h2>The architecture</h2>
+
+    <div class="pipeline" aria-label="Application data flow">
+      <span>Natural-language cricket question</span><i>↓</i>
+      <span>Player, team, and intent resolution</span><i>↓</i>
+      <span>Schema + cricket SQL guide + prompt rules</span><i>↓</i>
+      <span>Qwen 2.5 Coder through local Ollama</span><i>↓</i>
+      <span>Generated SQLite SELECT query</span><i>↓</i>
+      <span>Safety checks + database execution</span><i>↓</i>
+      <span>Cricket statistics answer</span>
+    </div>
+
+    <p>The model runs locally through Ollama as <code>qwen2.5-coder:14b</code>. The Python application sends a prompt to the Ollama generation API on <code>localhost:11434</code>. SQLite—not the language model—remains the factual source of truth.</p>
+
+    <h2>Designing the cricket database</h2>
+
+    <p>The database combines Cricsheet-style JSON with historical CricketArchive scorecards. Its normalized tables represent several different grains:</p>
+
+    <ul>
+      <li><code>match_stats</code>: one row per match</li>
+      <li><code>match_innings_stats</code>: one row per team innings</li>
+      <li><code>player_match_stats</code>: one row per player per match</li>
+      <li><code>player_match_innings_stats</code>: one row per player per innings</li>
+      <li><code>player_batting_innings_stats</code>: one row per batting innings</li>
+      <li><code>player_career_stats</code>: career summaries</li>
+      <li><code>player_career_group_stats</code>: opposition, year, and competition summaries</li>
+    </ul>
+
+    <p>This structure is central to text-to-SQL accuracy. “Kapil Dev’s total Test wickets” belongs in a career table. “Five wickets in an innings” requires an innings-level bowling table. “India’s highest Test total” requires team innings joined to match metadata.</p>
+
+    <h2>Why the schema was not enough</h2>
+
+    <p>Column names do not teach cricket semantics. The model needs to know that a Test can contain four team innings, that a player can bat twice, and that a batting average is runs divided by dismissals rather than runs divided by balls.</p>
+
+    <p>The project therefore includes a prompt-augmentation document called <code>cricket_sql_guide.md</code>. It explains table selection, cricket concepts, name rules, locations, common query patterns, and known failure modes.</p>
+
+    <div class="callout">
+      <strong>Example prompt rule</strong>
+      For a player’s Test career wickets, select <code>player_career_stats.wickets_taken</code> from the <code>competition_name = 'All'</code> row. Never use <code>COUNT(*)</code>, because that counts career rows rather than wickets.
+    </div>
+
+    <p>Without this rule, a model can produce syntactically correct SQL that returns “1”—the number of matching career rows—instead of Kapil Dev’s actual wicket total.</p>
+
+    <pre><code>SELECT wickets_taken AS total_wickets
+FROM player_career_stats
+WHERE player_name = 'Kapil Dev'
+  AND format_group = 'Test'
+  AND competition_name = 'All'
+ORDER BY wickets_taken DESC, matches DESC
+LIMIT 1;</code></pre>
+
+    <h2>Player-name resolution was harder than SQL</h2>
+
+    <p>Fans ask about Sachin Tendulkar, Sunil Gavaskar, Don Bradman, and Vijay Hazare. Historical databases may store them as <code>SR Tendulkar</code>, <code>SM Gavaskar</code>, <code>DG Bradman</code>, and <code>VS Hazare</code>.</p>
+
+    <p>Older scorecards can also split one person across an initialed batting identity and a surname-only bowling identity. The correct database row can depend on whether the question concerns batting, bowling, or fielding.</p>
+
+    <p>Instead of asking Qwen to invent a database name, Python performs deterministic preprocessing:</p>
+
+    <ul>
+      <li>Known aliases</li>
+      <li>Exact full-name matches</li>
+      <li>Initial-plus-surname matching</li>
+      <li>Surname and fuzzy matching</li>
+      <li>Test-career filtering</li>
+      <li>Statistic-aware ranking</li>
+    </ul>
+
+    <p>The resolved identity is inserted into the prompt as explicit context, such as <code>Use player_name = 'SM Gavaskar'</code>.</p>
+
+    <h2>Cricket language is contextual</h2>
+
+    <h3>“Against” means opposition</h3>
+    <p>“How many Test hundreds did Gavaskar score against Australia?” requires <code>opposition = 'Australia'</code>. It does not mean the player represented a team other than Australia.</p>
+
+    <h3>“In India” means match location</h3>
+    <p>“Did Bradman play a Test in India?” asks where the match occurred. It requires match metadata and city or venue filtering, not a player-team predicate.</p>
+
+    <h3>“Visiting” combines location and nationality</h3>
+    <p>A visiting batter in Australia must have played at an Australian location while representing a team other than Australia.</p>
+
+    <h3>“Overseas” depends on the player</h3>
+    <p>For Gavaskar, overseas means outside India. For Bradman, it means outside Australia. A single hard-coded country exclusion cannot answer both correctly.</p>
+
+    <h2>The trace–diagnose–improve loop</h2>
+
+    <p>The assistant was improved through a manual feedback workflow. I would run <code>ask_cricket.py</code>, ask a real cricket question, and inspect any incorrect query or result.</p>
+
+    <ol>
+      <li>Write an authoritative SQL query manually.</li>
+      <li>Run it against SQLite and confirm the expected result.</li>
+      <li>Compare it with Qwen’s generated SQL.</li>
+      <li>Classify the failure.</li>
+      <li>Fix the correct layer.</li>
+      <li>Add the question to the regression suite.</li>
+      <li>Run every existing evaluation again.</li>
+    </ol>
+
+    <p>When tracing is enabled, the application records the question, resolved context, full prompt, Qwen response, cleaned SQL, returned rows, and timing in JSONL. Without tracing, the generated SQL and displayed result can be supplied manually for analysis.</p>
+
+    <h2>Failures that taught useful lessons</h2>
+
+    <h3>Ignoring a named team</h3>
+    <p>For “What is India’s highest total in a Test innings?”, Qwen initially reused the general highest-innings pattern and returned Sri Lanka’s overall record. The missing clause was:</p>
+
+    <pre><code>AND mi.team = 'India'</code></pre>
+
+    <p>The reusable lesson was added to both the cricket guide and the primary prompt: when a highest team-innings question names a team, the final SQL must filter to that team.</p>
+
+    <h3>Treating a null winner as a team</h3>
+    <p>For “Which team has won the most Test matches?”, Qwen grouped every value in <code>match_stats.winner</code>. Matches without a recorded winner created a large null group that outranked real teams.</p>
+
+    <pre><code>WHERE match_type = 'Test'
+  AND winner IS NOT NULL
+  AND trim(winner) &lt;&gt; ''
+GROUP BY winner
+ORDER BY COUNT(*) DESC;</code></pre>
+
+    <h3>Summing an already-stored career total</h3>
+    <p>For MS Dhoni’s Test stumpings, Qwen used <code>SUM(stumpings)</code> on the career table. It happened to return the right value with one matching row, but the reasoning was wrong. Career totals such as catches and stumpings should be selected directly.</p>
+
+    <h3>Confusing the batter and bowler</h3>
+    <p>In “Which bowler dismissed Gavaskar most often?”, Gavaskar is the dismissed batter. The query filters the batter row and groups by <code>dismissal_bowler</code>. Using <code>wickets_taken</code> answers a different question.</p>
+
+    <h2>Building the regression suite</h2>
+
+    <p>The evaluation suite grew from 20 to 30 database-grounded cases. It now covers career batting and bowling, name aliases, dismissals, overseas records, both-innings centuries, team totals, venues, match margins, fielding, chronology, and player comparisons.</p>
+
+    <p>Each case can verify required and forbidden SQL fragments, row counts, scalar values, or expected rows. The expected answers are computed from SQLite, never copied from Qwen.</p>
+
+    <pre><code>{
+  "name": "india_highest_test_innings_uses_team_innings",
+  "question": "what is india's highest total in a test innings",
+  "sql_contains": [
+    "FROM match_innings_stats",
+    "JOIN match_stats",
+    "team = 'India'"
+  ],
+  "first_row": {
+    "team": "India",
+    "total_runs": 759
+  }
+}</code></pre>
+
+    <p>The final expanded run produced semantically correct answers for all 30 cases while preserving the original 20.</p>
+
+    <h2>Do not make evals more rigid than the problem</h2>
+
+    <p>A correct answer can come from different SQL formulations. Lara’s highest Test score can be selected from a career summary or calculated with <code>MAX(runs_scored)</code> over Test innings. A result column may be called <code>winner</code> or aliased as <code>team</code>.</p>
+
+    <p>Early assertions sometimes treated these harmless differences as failures. The suite was refined to emphasize:</p>
+
+    <ul>
+      <li>The correct result</li>
+      <li>The correct filters and aggregation level</li>
+      <li>The absence of known dangerous patterns</li>
+      <li>Semantic correctness rather than one exact SQL string</li>
+    </ul>
+
+    <h2>What local inference means</h2>
+
+    <p>Local inference is the stage where Qwen reads the question, schema, guide, resolved entities, and recent context, then generates SQL. SQLite execution is generally fast; most evaluation time is spent processing the large prompt and generating model output.</p>
+
+    <p>This creates a trade-off. Adding rules can improve accuracy, but a growing prompt increases latency and makes critical instructions easier to overlook. High-value constraints were promoted into the primary instruction block, while detailed examples remain in the longer guide.</p>
+
+    <h2>Prompt engineering or fine-tuning?</h2>
+
+    <p>Prompt engineering is the right starting point here. The schema changes, failures are inspectable, rules can be updated immediately, and deterministic code handles entity resolution better than a probabilistic model.</p>
+
+    <p>Fine-tuning may become useful after collecting hundreds or thousands of reviewed question-to-SQL pairs. Until then, prompt augmentation is easier to maintain and debug.</p>
+
+    <div class="lesson-grid">
+      <div class="lesson"><b>Schema is not semantics</b><p>The model needs cricket concepts and aggregation rules, not only table definitions.</p></div>
+      <div class="lesson"><b>Resolve names deterministically</b><p>Do not ask the model to guess the exact player identity stored in the database.</p></div>
+      <div class="lesson"><b>Fix the right layer</b><p>Use Python for entities, prompts for domain reasoning, and data repairs for data problems.</p></div>
+      <div class="lesson"><b>Ground every expected answer</b><p>Regression values must come from authoritative SQL over the current database.</p></div>
+      <div class="lesson"><b>Test semantic equivalence</b><p>Allow multiple correct SQL forms while rejecting incorrect reasoning.</p></div>
+      <div class="lesson"><b>Protect every learned behavior</b><p>Each real failure becomes a permanent regression case.</p></div>
+    </div>
+
+    <section class="closing">
+      <h2>Conclusion</h2>
+      <p>The useful intelligence in this assistant is distributed across the system. Qwen provides flexible language interpretation. Python resolves entities and adds deterministic context. The cricket guide supplies domain knowledge. SQLite produces the facts. The eval suite prevents yesterday’s fixes from becoming tomorrow’s regressions.</p>
+      <p>That combination—local inference, domain-aware prompt augmentation, deterministic preprocessing, database verification, and disciplined evaluation—turns a general coding model into a practical cricket statistics assistant.</p>
+    </section>
+  </main>
+
+  <footer>Static article preview created for the CricketStats project.</footer>
+</body>
+</html>

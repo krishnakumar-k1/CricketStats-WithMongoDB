@@ -1,0 +1,1368 @@
+[
+  {
+    "name": "most_ipl_runs",
+    "question": "who has scored the most runs in IPL history",
+    "sql_contains": ["FROM player_career_stats", "format_group = 'IPL'", "competition_name = 'All'"],
+    "first_row": {"player_name": "V Kohli", "runs_scored": 9346}
+  },
+  {
+    "name": "most_ipl_wickets",
+    "question": "who is the highest wicket taker in IPL",
+    "sql_contains": ["FROM player_career_stats", "wickets_taken"],
+    "first_row": {"player_name": "YS Chahal"},
+    "scalar": {"column": "wickets_taken", "value": 233, "allow_any_numeric_column": true}
+  },
+  {
+    "name": "kohli_career_runs",
+    "question": "how many IPL runs has Virat Kohli scored",
+    "sql_contains": ["player_name = 'V Kohli'", "runs_scored"],
+    "scalar": {"column": "runs_scored", "value": 9346}
+  },
+  {
+    "name": "highest_batting_average_min_1000_runs",
+    "question": "which player has the highest batting average (min. 1000 runs) in IPL",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "runs_scored >= 1000",
+      "batting_average",
+      "batting_average DESC"
+    ],
+    "sql_not_contains": ["batting_average ASC"],
+    "first_row": {
+      "player_name": "B Sai Sudharsan",
+      "batting_average": 48.37
+    }
+  },
+  {
+    "name": "best_all_time_bowling_average_qualified",
+    "question": "who has the best all-time bowling average",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "wickets_taken >= 50",
+      "bowling_average IS NOT NULL",
+      "bowling_average ASC"
+    ],
+    "first_row": {
+      "player_name": "SL Malinga",
+      "bowling_average": 19.8
+    }
+  },
+  {
+    "name": "three_player_batting_averages",
+    "question": "what is the batting average of David warner, KL Rahul and Kane williamson",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "'DA Warner'",
+      "'KL Rahul'",
+      "'KS Williamson'",
+      "batting_average IS NOT NULL"
+    ],
+    "sql_not_contains": ["LIMIT 1"],
+    "row_count_min": 3,
+    "expected_rows": [
+      {"player_name": "DA Warner", "batting_average": 40.04},
+      {"player_name": "KL Rahul", "batting_average": 45.53},
+      {"player_name": "KS Williamson", "batting_average": 35.53}
+    ]
+  },
+  {
+    "name": "kohli_hundreds",
+    "question": "how many IPL centuries does Kohli have",
+    "sql_contains": ["player_name = 'V Kohli'", "hundreds"],
+    "scalar": {"column": "hundreds", "value": 9}
+  },
+  {
+    "name": "bumrah_five_wicket_hauls",
+    "question": "how many IPL five wicket hauls has Jasprit Bumrah taken",
+    "sql_contains": ["player_name = 'JJ Bumrah'"],
+    "sql_not_contains": ["m.match_type = 'Test'"],
+    "scalar": {"column": "five_wickets", "value": 2, "allow_any_numeric_column": true}
+  },
+  {
+    "name": "fastest_to_100_ipl_wickets",
+    "question": "Who is the fastest cricketer to reach 100 IPL wickets?",
+    "sql_contains": [
+      "FROM player_match_stats",
+      "JOIN match_stats",
+      "ROW_NUMBER() OVER",
+      "SUM(",
+      "wickets_taken",
+      "cumulative_wickets",
+      ">= 100",
+      "matches_to_100",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "special_record_stats",
+      "fastest century"
+    ],
+    "first_row": {
+      "player_name": "K Rabada",
+      "matches_to_100": 61
+    }
+  },
+  {
+    "name": "alzeri_joseph_bowling_record_alias",
+    "question": "bowling record of Alzeri Joseph",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'AS Joseph'",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "best_bowling"
+    ],
+    "sql_not_contains": ["ORDER BY wickets_taken DESC"],
+    "first_row": {
+      "player_name": "AS Joseph",
+      "best_bowling": "6/12"
+    }
+  },
+  {
+    "name": "most_sixes",
+    "question": "which player has hit the most sixes in IPL",
+    "first_row": {"player_name": "CH Gayle"},
+    "scalar": {
+      "column": "sixes",
+      "value": 359,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "most_ipl_fours",
+    "question": "Which player has hit the most fours in IPL?",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "fours",
+      "fours DESC"
+    ],
+    "sql_not_contains": [
+      "SUM(fours)",
+      "FROM player_batting_innings_stats"
+    ],
+    "first_row": {
+      "player_name": "V Kohli",
+      "fours": 847
+    }
+  },
+  {
+    "name": "most_catches",
+    "question": "who has taken the most catches in IPL",
+    "first_row": {"player_name": "MS Dhoni", "catches": 158}
+  },
+  {
+    "name": "most_stumpings",
+    "question": "who has the most stumpings in IPL",
+    "first_row": {"player_name": "MS Dhoni"},
+    "scalar": {
+      "column": "stumpings",
+      "value": 47,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "highest_individual_score",
+    "question": "what is the highest individual score in IPL history",
+    "sql_contains": ["player_batting_innings_stats"],
+    "first_row": {"player_name": "CH Gayle", "runs_scored": 175, "is_not_out": 1}
+  },
+  {
+    "name": "highest_individual_score_ipl_2022",
+    "question": "Who recorded the highest individual score in IPL 2022?",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "m.season = '2022'",
+      "runs_scored DESC",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": [
+      "p.season",
+      "WHERE season =",
+      "MAX(runs_scored)"
+    ],
+    "first_row": {
+      "player_name": "Q de Kock",
+      "runs_scored": 140,
+      "is_not_out": 1
+    }
+  },
+  {
+    "name": "gayle_highest_score",
+    "question": "what is Chris Gayle's highest IPL score",
+    "sql_contains": ["player_name = 'CH Gayle'"],
+    "scalar": {
+      "column": "highest_score",
+      "value": 175,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "three_player_most_boundaries_one_innings",
+    "question": "among these 3 players kl rahul, rishabh pant and rohit sharma who has scored more boundaries in one innings",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "'KL Rahul'",
+      "'RR Pant'",
+      "'RG Sharma'",
+      "fours + sixes",
+      "boundaries",
+      "ORDER BY",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": [
+      "SUM(fours)",
+      "GROUP BY player_name"
+    ],
+    "first_row": {
+      "player_name": "KL Rahul",
+      "fours": 16,
+      "sixes": 9,
+      "boundaries": 25
+    }
+  },
+  {
+    "name": "most_team_wins",
+    "question": "which IPL team has won the most matches",
+    "sql_contains": ["team_career_stats"],
+    "first_row": {"team": "Mumbai Indians", "wins": 155}
+  },
+  {
+    "name": "franchise_with_most_ipl_losses",
+    "question": "Which franchise holds the record of losing the most number of matches in IPL history?",
+    "sql_contains": [
+      "FROM team_career_stats",
+      "losses",
+      "SUM(losses)",
+      "Delhi Daredevils",
+      "Delhi Capitals",
+      "Kings XI Punjab",
+      "Punjab Kings",
+      "GROUP BY",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "wins = 0",
+      "SUM(matches) AS total_losses"
+    ],
+    "first_row": {
+      "franchise": "Delhi Capitals",
+      "losses": 147
+    }
+  },
+  {
+    "name": "team_alongside_delhi_most_consecutive_losses",
+    "question": "Which team alongside Delhi Capitals has lost the most consecutive matches in the IPL?",
+    "sql_contains": [
+      "FROM match_stats",
+      "UNION ALL",
+      "team1",
+      "team2",
+      "ROW_NUMBER() OVER",
+      "PARTITION BY",
+      "is_loss",
+      "Delhi Daredevils",
+      "Delhi Capitals",
+      "losing_streak"
+    ],
+    "sql_not_contains": [
+      "team_season_stats",
+      "MAX(season)",
+      "SUM(losses)"
+    ],
+    "first_row": {"team": "Pune Warriors"},
+    "scalar": {
+      "column": "losing_streak",
+      "value": 11,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "most_titles_returns_tied_leaders",
+    "question": "which teams have won the most IPL titles",
+    "sql_contains": ["team_career_stats", "titles"],
+    "expected_rows": [
+      {"team": "Mumbai Indians", "titles": 5},
+      {"team": "Chennai Super Kings", "titles": 5}
+    ]
+  },
+  {
+    "name": "csk_all_time_wins",
+    "question": "how many IPL matches have CSK won",
+    "sql_contains": ["Chennai Super Kings"],
+    "scalar": {
+      "column": "wins",
+      "value": 148,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "highest_team_innings",
+    "question": "what is the highest team total in IPL history",
+    "sql_contains": ["match_innings_stats"],
+    "first_row": {"team": "Sunrisers Hyderabad"},
+    "scalar": {
+      "column": "runs",
+      "value": 287,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "lowest_total_defended_full_length_match",
+    "question": "What is the lowest total defended by a team in IPL history?",
+    "sql_contains": [
+      "FROM match_innings_stats",
+      "JOIN match_stats",
+      "innings_number = 1",
+      "winner = mi.team",
+      "won_by_runs > 0",
+      "wickets = 10",
+      "legal_balls",
+      "scheduled_overs",
+      "balls_per_over",
+      "runs ASC",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": ["event_stage = 'Final'"],
+    "first_row": {
+      "team": "Punjab Kings",
+      "defended_total": 111,
+      "opposition": "Kolkata Knight Riders"
+    }
+  },
+  {
+    "name": "most_extras_conceded_single_match",
+    "question": "Which team holds the record for conceding the most extras in a single match",
+    "sql_contains": [
+      "FROM match_innings_stats",
+      "JOIN match_stats",
+      "CASE",
+      "team1",
+      "team2",
+      "match_id",
+      "SUM",
+      "extras_total",
+      "extras_conceded",
+      "ORDER BY"
+    ],
+    "sql_not_contains": ["GROUP BY mi.team"],
+    "first_row": {
+      "team": "Deccan Chargers",
+      "extras_conceded": 28
+    }
+  },
+  {
+    "name": "rcb_highest_ever_score_opposition",
+    "question": "against which team did RCB records its highest ever score",
+    "sql_contains": [
+      "FROM match_innings_stats",
+      "JOIN match_stats",
+      "Royal Challengers Bangalore",
+      "Royal Challengers Bengaluru",
+      "ORDER BY",
+      "runs DESC",
+      "opposition",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": ["GROUP BY mi.team"],
+    "first_row": {
+      "opposition": "Pune Warriors",
+      "runs": 263
+    }
+  },
+  {
+    "name": "champion_2024",
+    "question": "who won the IPL in 2024",
+    "sql_contains": ["team_season_stats", "season = '2024'", "champion = 1"],
+    "first_row": {"team": "Kolkata Knight Riders"}
+  },
+  {
+    "name": "champion_2026",
+    "question": "which team was IPL champion in 2026",
+    "sql_contains": ["team_season_stats", "season = '2026'", "champion = 1"],
+    "first_row": {"team": "Royal Challengers Bengaluru"}
+  },
+  {
+    "name": "inaugural_champion_season_mapping",
+    "question": "who won the inaugural 2008 IPL season",
+    "sql_contains": ["season = '2007/08'", "champion = 1"],
+    "first_row": {"team": "Rajasthan Royals"}
+  },
+  {
+    "name": "league_wide_tied_matches",
+    "question": "how many IPL matches have ended in a tie",
+    "sql_contains": ["match_stats", "result = 'tie'"],
+    "sql_not_contains": ["SUM(ties)", "team_career_stats"],
+    "scalar": {"column": "tied_matches", "value": 16, "allow_any_numeric_column": true}
+  },
+  {
+    "name": "player_in_first_and_500th_ipl_matches",
+    "question": "Who is the only player to feature in the 1st and 500th match of the IPL?",
+    "sql_contains": [
+      "FROM match_stats",
+      "ROW_NUMBER() OVER",
+      "ORDER BY match_date",
+      "match_id",
+      "ipl_match_number",
+      "IN (1, 500)",
+      "player_match_stats",
+      "COUNT(DISTINCT",
+      "ipl_match_number) = 2"
+    ],
+    "sql_not_contains": [
+      "ORDER BY event_match_number",
+      "event_match_number DESC"
+    ],
+    "first_row": {
+      "player_name": "BB McCullum"
+    }
+  },
+  {
+    "name": "league_wide_no_results",
+    "question": "how many IPL matches had no result",
+    "sql_contains": ["match_stats", "result = 'no result'"],
+    "sql_not_contains": ["SUM(no_results)", "team_career_stats"],
+    "scalar": {"column": "no_results", "value": 9, "allow_any_numeric_column": true}
+  },
+  {
+    "name": "dhoni_runs_for_csk",
+    "question": "who has scored the most runs for Chennai Super Kings",
+    "sql_contains": ["Chennai Super Kings"],
+    "first_row": {"player_name": "MS Dhoni"},
+    "scalar": {"column": "runs", "value": 4865, "allow_any_numeric_column": true}
+  },
+  {
+    "name": "most_ipl_centuries_does_not_filter_innings_to_all",
+    "question": "who has scored the most number of centuries",
+    "sql_contains": ["hundreds"],
+    "sql_not_contains": [
+      "player_batting_innings_stats WHERE format_group = 'IPL' AND competition_name = 'All'",
+      "player_batting_innings_stats\nWHERE format_group = 'IPL' AND competition_name = 'All'"
+    ],
+    "first_row": {"player_name": "V Kohli"},
+    "scalar": {
+      "column": "centuries",
+      "value": 9,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "most_runs_in_2025_joins_match_season",
+    "question": "who scored most runs in 2025 season",
+    "sql_contains": [
+      "player_batting_innings_stats",
+      "JOIN match_stats",
+      "m.season = '2025'",
+      "SUM"
+    ],
+    "sql_not_contains": [
+      "WHERE season = '2025'",
+      "competition_name = 'All'"
+    ],
+    "first_row": {
+      "player_name": "B Sai Sudharsan"
+    },
+    "scalar": {
+      "column": "runs",
+      "value": 759,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "rajasthan_highest_run_scorer_ipl_2020",
+    "question": "Who was the Rajasthan Royals' highest run-scorer in IPL 2020?",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "player_team = 'Rajasthan Royals'",
+      "m.season = '2020/21'",
+      "SUM",
+      "runs_scored",
+      "GROUP BY",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "p.season",
+      "WHERE season =",
+      "competition_name = 'All'"
+    ],
+    "first_row": {
+      "player_name": "SV Samson",
+      "total_runs": 375
+    }
+  },
+  {
+    "name": "tewatia_team_before_rr_2020",
+    "question": "Rajasthan Royals' Rahul Tewatia shot to limelight in IPL 2020. Which team did he represent before RR?",
+    "sql_contains": [
+      "FROM player_match_stats",
+      "JOIN match_stats",
+      "player_name = 'R Tewatia'",
+      "m.season = '2019'",
+      "p.team",
+      "p.team <> ''",
+      "DISTINCT"
+    ],
+    "sql_not_contains": [
+      "p.player_team",
+      "player_match_stats.player_team"
+    ],
+    "first_row": {
+      "team": "Delhi Capitals"
+    }
+  },
+  {
+    "name": "gayle_centuries_uses_career_column",
+    "question": "how many centuries has gayle scored",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'CH Gayle'",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "hundreds"
+    ],
+    "sql_not_contains": [
+      "FROM player_batting_innings_stats",
+      "COUNT(*)"
+    ],
+    "scalar": {
+      "column": "hundreds",
+      "value": 6,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "most_games_is_all_player_leaderboard",
+    "question": "who has played the most number of games",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "matches",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "WA Mota",
+      "player_name =",
+      "COUNT(*)"
+    ],
+    "first_row": {
+      "player_name": "V Kohli",
+      "matches": 282
+    }
+  },
+  {
+    "name": "compare_kohli_dhoni_full_batting_careers",
+    "question": "compare the batting statistics of kohli and dhoni",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "'V Kohli'",
+      "'MS Dhoni'",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "runs_scored",
+      "highest_score",
+      "batting_average",
+      "hundreds",
+      "fifties",
+      "batting_strike_rate"
+    ],
+    "sql_not_contains": [
+      "player_match_stats",
+      "COUNT(*)"
+    ],
+    "expected_rows": [
+      {
+        "player_name": "V Kohli",
+        "matches": 282,
+        "runs_scored": 9346,
+        "highest_score": 113,
+        "batting_average": 40.46,
+        "hundreds": 9,
+        "fifties": 68,
+        "sixes": 317,
+        "batting_strike_rate": 135.23
+      },
+      {
+        "player_name": "MS Dhoni",
+        "matches": 277,
+        "runs_scored": 5439,
+        "highest_score": 84,
+        "batting_average": 38.3,
+        "hundreds": 0,
+        "fifties": 24,
+        "sixes": 264,
+        "batting_strike_rate": 138.22
+      }
+    ]
+  },
+  {
+    "name": "compare_ashwin_chahal_bowling_careers",
+    "question": "can you compare the bowling statistics of ashwin and chahal",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "'R Ashwin'",
+      "'YS Chahal'",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "wickets_taken",
+      "best_bowling",
+      "bowling_average",
+      "five_wickets"
+    ],
+    "sql_not_contains": [
+      "player_match_stats",
+      "player_match_innings_stats",
+      "COUNT(*)",
+      "SUM("
+    ],
+    "expected_rows": [
+      {
+        "player_name": "YS Chahal",
+        "matches": 189,
+        "wickets_taken": 233,
+        "best_bowling": "5/40",
+        "bowling_average": 23.25,
+        "five_wickets": 1
+      },
+      {
+        "player_name": "R Ashwin",
+        "matches": 219,
+        "wickets_taken": 187,
+        "best_bowling": "4/34",
+        "bowling_average": 30.22,
+        "five_wickets": 0
+      }
+    ]
+  },
+  {
+    "name": "short_kohli_career_runs_uses_stored_total",
+    "question": "how many runs has kohli scored",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "player_name = 'V Kohli'",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "runs_scored"
+    ],
+    "sql_not_contains": [
+      "player_batting_innings_stats",
+      "SUM("
+    ],
+    "scalar": {
+      "column": "runs_scored",
+      "value": 9346,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "most_ipl_fivefers_returns_all_tied_leaders",
+    "question": "who has taken more fivefers",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "five_wickets"
+    ],
+    "sql_not_contains": [
+      "m.match_type = 'Test'",
+      "player_name =",
+      "LIMIT 1"
+    ],
+    "expected_rows": [
+      {"player_name": "B Kumar", "fivefers": 2},
+      {"player_name": "JD Unadkat", "fivefers": 2},
+      {"player_name": "JJ Bumrah", "fivefers": 2},
+      {"player_name": "JP Faulkner", "fivefers": 2}
+    ]
+  },
+  {
+    "name": "most_thirties_means_30_through_49",
+    "question": "who has scored most thirties",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "runs_scored BETWEEN 30 AND 49",
+      "GROUP BY player_name"
+    ],
+    "sql_not_contains": [
+      "competition_name = 'All'",
+      "BETWEEN 30 AND 39"
+    ],
+    "first_row": {"player_name": "V Kohli"},
+    "scalar": {
+      "column": "thirties",
+      "value": 58,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "team_with_most_games_won_uses_team_career",
+    "question": "which team has won the most number of games",
+    "sql_contains": [
+      "FROM team_career_stats",
+      "team",
+      "wins"
+    ],
+    "sql_not_contains": [
+      "player_career_stats",
+      "player_match_stats",
+      "COUNT(*)"
+    ],
+    "first_row": {
+      "team": "Mumbai Indians",
+      "wins": 155
+    }
+  },
+  {
+    "name": "ipl_trophy_winner_2025_uses_season_champion",
+    "question": "who won the ipl trophy in 2025",
+    "sql_contains": [
+      "FROM team_season_stats",
+      "season = '2025'",
+      "champion = 1",
+      "team"
+    ],
+    "sql_not_contains": [
+      "team_career_stats",
+      "titles"
+    ],
+    "first_row": {
+      "team": "Royal Challengers Bengaluru"
+    }
+  },
+  {
+    "name": "all_ipl_trophy_winners_and_seasons",
+    "question": "list all the teams that have won the ipl trophy and the years in which they won",
+    "sql_contains": [
+      "FROM team_season_stats",
+      "champion = 1",
+      "team",
+      "season"
+    ],
+    "sql_not_contains": [
+      "team_career_stats",
+      "first_year",
+      "last_year",
+      "LIMIT"
+    ],
+    "row_count_min": 19,
+    "expected_rows": [
+      {"team": "Rajasthan Royals", "season": "2007/08"},
+      {"team": "Chennai Super Kings", "season": "2009/10"},
+      {"team": "Mumbai Indians", "season": "2017"}
+    ]
+  },
+  {
+    "name": "csk_finals_appearances_not_titles",
+    "question": "how many times CSK went to the finals",
+    "sql_contains": [
+      "FROM match_stats",
+      "event_stage = 'Final'",
+      "team1 = 'Chennai Super Kings'",
+      "team2 = 'Chennai Super Kings'",
+      "COUNT(*)"
+    ],
+    "sql_not_contains": [
+      "team_season_stats",
+      "champion = 1",
+      "finals_won"
+    ],
+    "scalar": {
+      "column": "finals_appearances",
+      "value": 10,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "most_sixes_in_one_over_uses_deliveries",
+    "question": "who scored the highest number of sixers in a single over",
+    "sql_contains": [
+      "FROM delivery_stats",
+      "SUM(is_six)",
+      "GROUP BY",
+      "batter",
+      "match_id",
+      "innings_number",
+      "over_number"
+    ],
+    "sql_not_contains": [
+      "player_match_stats",
+      "MAX(sixes)",
+      "LIMIT 1"
+    ],
+    "row_count_min": 5,
+    "expected_rows": [
+      {"batter": "CH Gayle", "sixes_in_over": 5},
+      {"batter": "R Tewatia", "sixes_in_over": 5},
+      {"batter": "RA Jadeja", "sixes_in_over": 5},
+      {"batter": "RK Singh", "sixes_in_over": 5},
+      {"batter": "R Parag", "sixes_in_over": 5}
+    ]
+  },
+  {
+    "name": "match_count_2015_uses_exact_ipl_season",
+    "question": "What was the total number of matches played in 2015",
+    "sql_contains": [
+      "FROM match_stats",
+      "season = '2015'",
+      "COUNT(*)"
+    ],
+    "sql_not_contains": [
+      "season = '2014/15'"
+    ],
+    "scalar": {
+      "column": "matches_in_2015",
+      "value": 59,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "orange_cap_2025_uses_cap_table",
+    "question": "who won the orange cap in 2025",
+    "sql_contains": [
+      "FROM orange_cap_winners",
+      "season = '2025'",
+      "player_name",
+      "runs_scored"
+    ],
+    "sql_not_contains": [
+      "player_batting_innings_stats",
+      "player_career_stats"
+    ],
+    "first_row": {
+      "player_name": "B Sai Sudharsan",
+      "runs_scored": 759
+    }
+  },
+  {
+    "name": "purple_cap_2025_uses_cap_table",
+    "question": "who won the purple cap in 2025",
+    "sql_contains": [
+      "FROM purple_cap_winners",
+      "season = '2025'",
+      "player_name",
+      "wickets_taken"
+    ],
+    "sql_not_contains": [
+      "player_match_stats",
+      "player_career_stats"
+    ],
+    "first_row": {
+      "player_name": "M Prasidh Krishna",
+      "wickets_taken": 25
+    }
+  },
+  {
+    "name": "list_all_orange_cap_winners",
+    "question": "list all orange cap winners and the seasons they won",
+    "sql_contains": [
+      "FROM orange_cap_winners",
+      "player_name",
+      "season",
+      "ORDER BY"
+    ],
+    "sql_not_contains": [
+      "LIMIT"
+    ],
+    "row_count_min": 19,
+    "expected_rows": [
+      {"season": "2007/08", "player_name": "SE Marsh"},
+      {"season": "2016", "player_name": "V Kohli"}
+    ]
+  },
+  {
+    "name": "most_orange_caps",
+    "question": "who has won the orange cap most often",
+    "sql_contains": [
+      "FROM orange_cap_winners",
+      "GROUP BY player_name",
+      "COUNT(*)"
+    ],
+    "first_row": {
+      "player_name": "DA Warner",
+      "caps": 3
+    }
+  },
+  {
+    "name": "first_kings_xi_century_in_ipl_2008",
+    "question": "Who was the first player to score a century for the Kings XI in IPL 2008?",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "player_team = 'Kings XI Punjab'",
+      "runs_scored >= 100",
+      "season = '2007/08'",
+      "ORDER BY",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": [
+      "JP Inglis",
+      "player_name =",
+      "opposition = 'Kings XI Punjab'"
+    ],
+    "first_row": {
+      "player_name": "SE Marsh",
+      "match_date": "2008-05-28"
+    }
+  },
+  {
+    "name": "rajasthan_target_in_2009_match_18",
+    "question": "in 2009 Delhi and Rajasthan played in the 18th game. How many runs did Rajasthan need to win?",
+    "sql_contains": [
+      "FROM match_stats",
+      "season = '2009'",
+      "event_match_number = 18",
+      "Delhi Daredevils",
+      "Rajasthan Royals",
+      "+ 1"
+    ],
+    "sql_not_contains": [
+      "innings_number = 18",
+      "Delhi Capitals",
+      "wickets >= 5",
+      "* 33"
+    ],
+    "scalar": {
+      "column": "runs_needed",
+      "value": 144,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "rcb_winning_margin_2009_match_2",
+    "question": "in 2009, The second game, played between Royal Challengers Bangalore and the Rajasthan Royals. The Royal Challengers won, but by how much?",
+    "sql_contains": [
+      "FROM match_stats",
+      "season = '2009'",
+      "event_match_number = 2",
+      "Royal Challengers Bangalore",
+      "won_by_runs"
+    ],
+    "sql_not_contains": [
+      "team1_runs + 1",
+      "target_runs"
+    ],
+    "scalar": {"column": "margin", "value": 75, "allow_any_numeric_column": true}
+  },
+  {
+    "name": "washed_out_2009_match_7_uses_supplement",
+    "question": "in 2009 The seventh game was washed out. Who was it between",
+    "sql_contains": [
+      "FROM supplemental_matches",
+      "season = '2009'",
+      "event_match_number = 7",
+      "result = 'no result'",
+      "team1",
+      "team2"
+    ],
+    "sql_not_contains": [
+      "FROM match_stats"
+    ],
+    "first_row": {
+      "team1": "Mumbai Indians",
+      "team2": "Rajasthan Royals"
+    }
+  },
+  {
+    "name": "stadium_with_most_ipl_centuries_uses_canonical_venue",
+    "question": "which stadium has witnessed the most ipl centuries",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN venue_aliases",
+      "raw_venue",
+      "canonical_venue",
+      "runs_scored >= 100",
+      "GROUP BY"
+    ],
+    "sql_not_contains": [
+      "JOIN match_stats",
+      "competition_name = 'All'"
+    ],
+    "first_row": {
+      "canonical_venue": "Wankhede Stadium"
+    },
+    "scalar": {
+      "column": "centuries",
+      "value": 19,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "first_batter_with_successive_ipl_hundreds",
+    "question": "who was the first batter to score successive hundreds",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "LAG(runs_scored)",
+      "PARTITION BY",
+      "match_date",
+      "match_id",
+      "innings_number",
+      "previous_runs >= 100",
+      "runs_scored >= 100",
+      "LIMIT 1"
+    ],
+    "sql_not_contains": [
+      "JC Buttler",
+      "BA Bhatt",
+      "player_name IN"
+    ],
+    "first_row": {"player_name": "S Dhawan"}
+  },
+  {
+    "name": "most_centuries_while_chasing_uses_second_innings",
+    "question": "which batter has scored the most centuries while chasing",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "innings_number = 2",
+      "runs_scored >= 100",
+      "GROUP BY player_name"
+    ],
+    "sql_not_contains": [
+      "winner !=",
+      "winner <>",
+      "LIMIT",
+      "competition_name = 'All'"
+    ],
+    "expected_rows": [
+      {"player_name": "JC Buttler", "centuries_chasing": 3},
+      {"player_name": "V Kohli", "centuries_chasing": 3}
+    ]
+  },
+  {
+    "name": "slowest_ipl_century_uses_delivery_milestone",
+    "question": "who has the record of the slowest ipl century",
+    "sql_contains": [
+      "FROM delivery_stats",
+      "SUM(batter_runs) OVER",
+      "PARTITION BY batter",
+      "over_number",
+      "delivery_number",
+      "json_extract(extras_json, '$.wides')",
+      "cumulative_runs >= 100",
+      "balls_to_century"
+    ],
+    "sql_not_contains": [
+      "MIN(match_date)",
+      "ORDER BY first_century_date",
+      "LIMIT 1"
+    ],
+    "expected_rows": [
+      {"batter": "MK Pandey", "balls_to_century": 67},
+      {"batter": "V Kohli", "balls_to_century": 67}
+    ]
+  },
+  {
+    "name": "all_batters_with_successive_hundreds",
+    "question": "who has scored successive hunderds",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "LAG(runs_scored)",
+      "PARTITION BY player_name",
+      "previous_runs >= 100",
+      "runs_scored >= 100"
+    ],
+    "sql_not_contains": [
+      "WHERE runs_scored >= 100\n)",
+      "ORDER BY runs_scored DESC",
+      "LIMIT 1",
+      "AB de Villiers"
+    ],
+    "expected_rows": [
+      {"player_name": "S Dhawan"},
+      {"player_name": "JC Buttler"},
+      {"player_name": "Shubman Gill"},
+      {"player_name": "V Kohli"}
+    ]
+  },
+  {
+    "name": "only_bowler_with_three_ipl_hat_tricks",
+    "question": "who is the only bowler to take 3 hattricks",
+    "sql_contains": [
+      "FROM hat_trick_stats",
+      "GROUP BY bowler",
+      "COUNT(*)",
+      "HAVING COUNT(*) = 3"
+    ],
+    "sql_not_contains": [
+      "FROM delivery_stats",
+      "match_date"
+    ],
+    "first_row": {
+      "bowler": "A Mishra",
+      "hat_tricks": 3
+    }
+  },
+  {
+    "name": "top_20_ipl_run_scorers_uses_career_totals",
+    "question": "top 20 run scorers",
+    "sql_contains": [
+      "FROM player_career_stats",
+      "format_group = 'IPL'",
+      "competition_name = 'All'",
+      "runs_scored",
+      "ORDER BY",
+      "LIMIT 20"
+    ],
+    "sql_not_contains": [
+      "player_batting_innings_stats",
+      "SUM("
+    ],
+    "row_count_min": 20,
+    "first_row": {
+      "player_name": "V Kohli",
+      "runs_scored": 9346
+    },
+    "expected_rows": [
+      {"player_name": "RG Sharma", "runs_scored": 7331},
+      {"player_name": "S Dhawan", "runs_scored": 6769},
+      {"player_name": "DA Warner", "runs_scored": 6567}
+    ]
+  },
+  {
+    "name": "rinku_five_sixes_bowler_2023",
+    "question": "Against which bowler did KKR’s Rinku Singh hit five consecutive sixes in the last over to win a match in IPL 2023?",
+    "sql_contains": [
+      "FROM delivery_stats",
+      "JOIN match_stats",
+      "batter = 'RK Singh'",
+      "batting_team = 'Kolkata Knight Riders'",
+      "season = '2023'",
+      "is_six",
+      "bowler"
+    ],
+    "sql_not_contains": [
+      "d.player_team",
+      "player_team =",
+      "Rinku Singh"
+    ],
+    "first_row": {
+      "bowler": "Yash Dayal"
+    }
+  },
+  {
+    "name": "only_back_to_back_purple_cap_winner",
+    "question": "Who is the only bowler to win back-to-back Purple Caps in IPL?",
+    "sql_contains": [
+      "purple_cap_winners p1",
+      "purple_cap_winners p2",
+      "player_name",
+      "p2.year = p1.year + 1"
+    ],
+    "sql_not_contains": [
+      "ORDER BY year DESC",
+      "LIMIT 2"
+    ],
+    "first_row": {"player_name": "B Kumar"}
+  },
+  {
+    "name": "highest_wicket_taker_2014_edition",
+    "question": "Who was the highest wicket-taker in the 2014 edition of the tournament?",
+    "sql_contains": [
+      "FROM purple_cap_winners",
+      "season = '2014'",
+      "player_name",
+      "wickets_taken"
+    ],
+    "sql_not_contains": [
+      "player_match_stats WHERE season",
+      "player_match_innings_stats WHERE season",
+      "player_career_stats WHERE season"
+    ],
+    "first_row": {
+      "player_name": "MM Sharma",
+      "wickets_taken": 23
+    }
+  },
+  {
+    "name": "team_with_most_purple_caps",
+    "question": "Which team holds the record for winning the most Purple Caps in the IPL?",
+    "sql_contains": [
+      "FROM purple_cap_winners",
+      "JOIN match_stats",
+      "JOIN player_match_stats",
+      "DISTINCT",
+      "GROUP BY",
+      "purple_caps"
+    ],
+    "sql_not_contains": [
+      "purple_cap_winners.team",
+      "p.team"
+    ],
+    "first_row": {
+      "team": "Chennai Super Kings",
+      "purple_caps": 4
+    }
+  },
+  {
+    "name": "fastest_uncapped_indian_century_2022",
+    "question": "Which Indian uncapped player scored the fastest IPL century during the 2022 season?",
+    "sql_contains": [
+      "FROM special_record_stats",
+      "record_type = 'fastest century by an uncapped Indian player'",
+      "season = '2022'",
+      "player_name",
+      "record_value"
+    ],
+    "sql_not_contains": [
+      "d.season",
+      "FROM delivery_stats"
+    ],
+    "first_row": {
+      "player_name": "RM Patidar",
+      "record_value": 49,
+      "record_unit": "balls"
+    }
+  },
+  {
+    "name": "most_hundreds_in_ipl_2022",
+    "question": "Which player scored the most hundreds in IPL 2022",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "m.season = '2022'",
+      "runs_scored >= 100",
+      "GROUP BY",
+      "player_name"
+    ],
+    "sql_not_contains": [
+      "p.season",
+      "player_career_stats",
+      "competition_name = 'All'"
+    ],
+    "first_row": {
+      "player_name": "JC Buttler",
+      "hundreds": 4
+    }
+  },
+  {
+    "name": "opposition_most_centuries_ipl_2018",
+    "question": "Against which team were the most centuries scored in IPL 2018?",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "JOIN match_stats",
+      "m.season = '2018'",
+      "runs_scored >= 100",
+      "opposition",
+      "COUNT(",
+      "GROUP BY"
+    ],
+    "sql_not_contains": [
+      "mi.team",
+      "FROM match_innings_stats",
+      "competition_name = 'All'"
+    ],
+    "first_row": {"opposition": "Sunrisers Hyderabad"},
+    "scalar": {
+      "column": "centuries",
+      "value": 4,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "fastest_ipl_fifty_in_2022_uses_deliveries",
+    "question": "Which player scored the fastest IPL fifty in IPL 2022",
+    "sql_contains": [
+      "FROM delivery_stats",
+      "JOIN match_stats",
+      "season",
+      "SUM(d.batter_runs) OVER",
+      "json_extract",
+      "cumulative_runs",
+      "balls_to_fifty"
+    ],
+    "sql_not_contains": [
+      "special_record_stats",
+      "Indian player"
+    ],
+    "expected_values": ["PJ Cummins"],
+    "scalar": {
+      "column": "balls_to_fifty",
+      "value": 14,
+      "allow_any_numeric_column": true
+    }
+  },
+  {
+    "name": "fastest_ipl_fifty_all_time_ties",
+    "question": "Which player holds the record for the fastest fifty in IPL?",
+    "sql_contains": [
+      "FROM delivery_stats",
+      "SUM(",
+      "batter_runs",
+      "json_extract",
+      "cumulative_runs",
+      "balls_to_fifty",
+      "MIN(balls_to_fifty)",
+      "FROM milestones"
+    ],
+    "sql_not_contains": [
+      "special_record_stats",
+      "LIMIT 1"
+    ],
+    "expected_rows": [
+      {"batter": "YBK Jaiswal", "balls_to_fifty": 13},
+      {"batter": "Urvil Patel", "balls_to_fifty": 13}
+    ]
+  },
+  {
+    "name": "second_player_with_successive_ipl_hundreds",
+    "question": "Who became only the second player after Shikhar Dhawan to score two consecutive hundreds in the IPL",
+    "sql_contains": [
+      "FROM player_batting_innings_stats",
+      "LAG(",
+      "PARTITION BY",
+      "previous_runs >= 100",
+      "runs_scored >= 100",
+      "achievement_order"
+    ],
+    "first_row": {
+      "player_name": "JC Buttler",
+      "completion_date": "2022-04-22",
+      "achievement_order": 2
+    }
+  },
+  {
+    "name": "most_last_place_ipl_finishes",
+    "question": "Which team has had the most number of last-place finishes in the IPL points table?",
+    "sql_contains": [
+      "FROM team_last_place_finishes",
+      "GROUP BY team",
+      "COUNT(*)",
+      "last_place_finishes"
+    ],
+    "sql_not_contains": [
+      "team_season_stats",
+      "matches = 0",
+      "wins = 0"
+    ],
+    "first_row": {
+      "team": "Delhi Daredevils",
+      "last_place_finishes": 4
+    }
+  },
+  {
+    "name": "most_catches_in_single_ipl_innings",
+    "question": "Which fielder has the record of taking the most number of catches in a single innings?",
+    "sql_contains": [
+      "FROM player_match_innings_stats",
+      "catches",
+      "MAX(catches)"
+    ],
+    "sql_not_contains": [
+      "SUM(catches)",
+      "player_match_stats",
+      "LIMIT 1"
+    ],
+    "expected_rows": [
+      {"player_name": "KC Sangakkara", "catches": 5},
+      {"player_name": "Mohammad Nabi", "catches": 5},
+      {"player_name": "DJ Mitchell", "catches": 5}
+    ]
+  }
+]

@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cricketstats"
+version = "0.1.0"
+description = "Cricket statistics backed by MongoDB."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "rkk" }
+]
+dependencies = ["pymongo>=4.10,<5"]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0"
+]
+
+[project.scripts]
+cricketstats = "cricketstats.cli:main"
+espn-scorecard-crawler = "cricketstats.espn_scorecard_crawler:main"
+cricketarchive-wayback-crawler = "cricketstats.cricketarchive_wayback_crawler:main"
+cricketarchive-scorecard-importer = "cricketstats.cricketarchive_scorecard_importer:main"
+ipl-database = "cricketstats.ipl_importer:main"
+cricketstats-migrate-mongodb = "cricketstats.mongodb_migrate:main"
+cricketstats-mongodb-check = "cricketstats.mongodb_client:main"
+cricketstats-mongodb-verify = "cricketstats.mongodb_verify:main"
+cricketstats-mongodb-demo = "cricketstats.mongodb_demo:main"
+ask-cricket-mongodb = "cricketstats.mongodb_assistant:main"
+cricketstats-web = "cricketstats.web_app:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cricketstats"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/cricketstats/web_static" = "cricketstats/web_static"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
